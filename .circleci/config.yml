@@ -1,61 +1,42 @@
 version: 2.1
 
+commands:
+  install:
+    steps:
+      - restore_cache:
+          key: pip-{{ checksum "requirements.txt" }}
+      - run:
+          name: Install dependencies
+          command: pip install -r requirements.txt
+      - save_cache:
+          key: pip-{{ checksum "requirements.txt" }}
+          paths:
+            - ~/.cache/pip
+
 jobs:
-  build-and-test:
+  test:
     docker:
       - image: cimg/python:3.11
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-            - pip-deps-v1-{{ checksum "requirements.txt" }}
-            - pip-deps-v1-
-
-      - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
-
-      - save_cache:
-          key: pip-deps-v1-{{ checksum "requirements.txt" }}
-          paths:
-            - ~/.cache/pip
-
+      - install
       - run:
           name: Run tests
-          command: |
-            mkdir -p test-results
-            pytest --junitxml=test-results/junit.xml
-
-      - store_test_results:
-          path: test-results
+          command: pytest
 
   lint:
     docker:
       - image: cimg/python:3.11
     steps:
       - checkout
-
-      - restore_cache:
-          keys:
-            - pip-deps-v1-{{ checksum "requirements.txt" }}
-            - pip-deps-v1-
-
+      - install
       - run:
-          name: Install dependencies
-          command: pip install -r requirements.txt
-
-      - save_cache:
-          key: pip-deps-v1-{{ checksum "requirements.txt" }}
-          paths:
-            - ~/.cache/pip
-
-      - run:
-          name: Check formatting with Black
+          name: Check formatting
           command: black --check .
 
 workflows:
-  test_and_lint:
+  version: 2
+  build-and-test:
     jobs:
-      - build-and-test
+      - test
       - lint
