@@ -7,24 +7,20 @@ jobs:
     steps:
       - checkout
 
-      # 1. Восстановление кэша pip
       - restore_cache:
           keys:
             - pip-deps-v1-{{ checksum "requirements.txt" }}
             - pip-deps-v1-
 
-      # 2. Установка зависимостей
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
 
-      # 3. Сохранение кэша
       - save_cache:
           key: pip-deps-v1-{{ checksum "requirements.txt" }}
           paths:
             - ~/.cache/pip
 
-      # 4. Запуск тестов
       - run:
           name: Run tests
           command: pytest
@@ -35,24 +31,20 @@ jobs:
     steps:
       - checkout
 
-      # 1. Восстановление кэша pip
       - restore_cache:
           keys:
             - pip-deps-v1-{{ checksum "requirements.txt" }}
             - pip-deps-v1-
 
-      # 2. Установка зависимостей
       - run:
           name: Install dependencies
           command: pip install -r requirements.txt
 
-      # 3. Сохранение кэша
       - save_cache:
           key: pip-deps-v1-{{ checksum "requirements.txt" }}
           paths:
             - ~/.cache/pip
 
-      # 4. Проверка форматирования
       - run:
           name: Check formatting with Black
           command: black --check .
